@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="tic-tac-toe:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="tic-tac-toe-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="tic-tac-toe:war exploded" />
+    </root>
+  </artifact>
+</component>
