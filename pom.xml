@@ -9,7 +9,7 @@
     <artifactId>tic-tac-toe</artifactId>
 
     <properties>
-        <app.id>TicTacToe-308-Witkovsky-Michae</app.id>
+        <app.id>mwitkovsky-tic-tac-toe</app.id>
         <app.version>1</app.version>
         <appengine.version>1.9.31</appengine.version>
         <gcloud.plugin.version>2.0.9.74.v20150814</gcloud.plugin.version>
