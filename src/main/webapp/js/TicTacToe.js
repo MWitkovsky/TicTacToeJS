@@ -8,16 +8,29 @@ var canvasHeight;
 var canvas;
 var canvas2D;
 
-//Update Variables
-var fps;
-var time;
-var timer;
-var go;
-
 //Game variables
+var countdown;
 var game;
 var usedSpaces;
+var gameStarted;
 var gameActive;
+
+function beginCountdown(){
+    this.timeRemaining = 5;
+    this.interval = setInterval(function(){
+        clearCanvas();
+        initBoard();
+        drawNumber(this.timeRemaining);
+        if(--this.timeRemaining <= 0){
+            clearCanvas();
+            initBoard();
+            initGame();
+            gameStarted = true;
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+    }, 1);
+}
 
 function init() {
     canvasWidth = 800;
@@ -29,28 +42,15 @@ function init() {
     canvas2D.fillStyle = "#FF0000";
     window.addEventListener('load', init, false);
 
+    gameStarted = false;
+    countdown = beginCountdown();
+    clearCanvas();
     initBoard();
-
-    fps = 30;
-    timer = null;
-    go = true;
-    updateFPS();
+    initGame();
+    gameStarted = true;
 }
 
 function initBoard(){
-    //init game board
-    game = new Array(3);
-    game[0] = new Array(3);
-    game[1] = new Array(3);
-    game[2] = new Array(3);
-    usedSpaces = 0;
-
-    for(var i=0; i<3; i++){
-        for(var j=0; j<3; j++){
-            game[i][j] = new gameTile(false, false);
-        }
-    }
-
     //stroke settings
     canvas2D.lineWidth = 10;
     var thirdWidth = canvasWidth / 3;
@@ -71,41 +71,31 @@ function initBoard(){
     canvas2D.moveTo(0, 2*thirdHeight);
     canvas2D.lineTo(canvasWidth, 2*thirdHeight);
     canvas2D.stroke();
+}
+
+function initGame(){
+    //init game board
+    game = new Array(3);
+    game[0] = new Array(3);
+    game[1] = new Array(3);
+    game[2] = new Array(3);
+    usedSpaces = 0;
+
+    for(var i=0; i<3; i++){
+        for(var j=0; j<3; j++){
+            game[i][j] = new gameTile(false, false);
+        }
+    }
 
     gameActive = true;
-}
-
-function step() {
-    if (go) {
-        update();
-    }
-}
-
-function update() {
-}
-
-function updateFPS() {
-    if (timer !== null) {
-        clearInterval(timer);
-    }
-    time = 1000 / fps;
-    timer = setInterval(step, time);
 }
 
 function clearCanvas() {
     canvas2D.clearRect(0, 0, canvasWidth, canvasHeight);
 }
 
-function stop() {
-    go = false;
-}
-
-function start() {
-    go = true;
-}
-
 function mouseDown(event) {
-    if(gameActive){
+    if(gameStarted && gameActive){
         var validMove = false;
         var x = event.x;
         var y = event.y;
@@ -181,7 +171,12 @@ function checkForWinner(){
     var isPossibleWinner;
     //Checks all rows
     for(var i=0; i<3; i++){
-        isCircle = game[0][i].isCircle;
+        if(game[0][i].isUsed){
+            isCircle = game[0][i].isCircle;
+        }
+        else{
+            isCircle = null;
+        }
         isPossibleWinner = false;
         for(var j=1; j<3; j++){
             if(game[j][i].isUsed && game[j][i].isCircle === isCircle){
@@ -196,7 +191,12 @@ function checkForWinner(){
 
     //Checks all columns
     for(var i=0; i<3; i++){
-        isCircle = game[i][0].isCircle;
+        if(game[i][0].isUsed){
+            isCircle = game[i][0].isCircle;
+        }
+        else{
+            isCircle = null;
+        }
         isPossibleWinner = false;
         for(var j=1; j<3; j++){
             if(game[i][j].isUsed && game[i][j].isCircle === isCircle){
@@ -210,7 +210,12 @@ function checkForWinner(){
     }
 
     //Check top left diagonal
-    isCircle = game[0][0].isCircle;
+    if(game[0][0].isUsed){
+        isCircle = game[0][0].isCircle;
+    }
+    else{
+        isCircle = null;
+    }
     isPossibleWinner = false;
     for(var i=1; i<3; i++){
         if(game[i][i].isUsed && game[i][i].isCircle === isCircle){
@@ -223,7 +228,12 @@ function checkForWinner(){
     }
 
     //Check bottom left diagonal
-    isCircle = game[0][2].isCircle;
+    if(game[0][2].isUsed){
+        isCircle = game[0][2].isCircle;
+    }
+    else{
+        isCircle = null;
+    }
     isPossibleWinner = false;
     for(var i=1; i<3; i++){
         if(game[i][2-i].isUsed && game[i][2-i].isCircle === isCircle){
@@ -266,12 +276,12 @@ function drawCross(x, y){
     canvas2D.stroke();
 }
 
-function gameTile(isUsed, isCircle, posX, posY){
+function drawNumber(num){
+    canvas2D.font = "30px Arial";
+    canvas2D.fillText(num, canvas.width/2, canvas.height/2);
+}
+
+function gameTile(isUsed, isCircle){
     this.isUsed = isUsed;
     this.isCircle = isCircle;
-
-    this.placePiece = function(isCircle){
-        this.isUsed = true;
-        this.isCircle = isCircle;
-    }
 }
