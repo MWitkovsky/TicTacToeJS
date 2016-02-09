@@ -12,7 +12,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="./js/TicTacToe.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 
     <title>Tic Tac Toe</title>
 </head>
@@ -28,7 +27,11 @@
             <canvas id="myCanvas" width="800" height="800" style="border:1px solid #000000;">
             </canvas>
         </div>
-
+        <div>
+            <input type="button" onclick="nextGame();" value="Play Tic-Tac-Toe!" />
+            <input type="button" onclick="clearCanvas();" value="CLEAR!" />
+            <input type="button" onclick="drawPiecesButton();" value="DRAW!" />
+        </div>
         <script>
             init();
         </script>

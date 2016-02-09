@@ -9,28 +9,12 @@ var canvas;
 var canvas2D;
 
 //Game variables
-var countdown;
+var boardRefresher;
+var playerFirst;
 var game;
 var usedSpaces;
 var gameStarted;
 var gameActive;
-
-function beginCountdown(){
-    this.timeRemaining = 5;
-    this.interval = setInterval(function(){
-        clearCanvas();
-        initBoard();
-        drawNumber(this.timeRemaining);
-        if(--this.timeRemaining <= 0){
-            clearCanvas();
-            initBoard();
-            initGame();
-            gameStarted = true;
-            clearInterval(this.interval);
-            this.interval = null;
-        }
-    }, 1);
-}
 
 function init() {
     canvasWidth = 800;
@@ -40,13 +24,17 @@ function init() {
     canvas2D = canvas.getContext("2d");
 
     canvas2D.fillStyle = "#FF0000";
-    window.addEventListener('load', init, false);
 
-    gameStarted = false;
-    countdown = beginCountdown();
+    /*boardRefresher = setInterval(function(){
+        clearCanvas();
+        initBoard();
+        drawPieces();
+    }, 30/1000)*/
+    playerFirst = true;
     clearCanvas();
     initBoard();
     initGame();
+
     gameStarted = true;
 }
 
@@ -90,6 +78,29 @@ function initGame(){
     gameActive = true;
 }
 
+function nextGame(){
+    for(var i=0; i<3; i++){
+        for(var j=0; j<3; j++){
+            game[i][j].isUsed = false;
+            game[i][j].isCircle = false;
+        }
+    }
+    usedSpaces = 0;
+
+    playerFirst = !playerFirst;
+
+    gameStarted = true;
+    gameActive = true;
+
+    if(!playerFirst){
+        CPUTurn();
+    }
+
+    clearCanvas();
+    initBoard();
+    drawPieces();
+}
+
 function clearCanvas() {
     canvas2D.clearRect(0, 0, canvasWidth, canvasHeight);
 }
@@ -118,43 +129,38 @@ function mouseDown(event) {
                             alert("x:" + j + " y:" + i + " is already being used");
                         }
                         else{
-                            drawCross(squareX+261/2, squareY+261/2);
                             game[j][i].isUsed = true;
-                            validMove = true;
-                            usedSpaces++;
-                            if(checkForWinner()){
-                                return;
+                            if(playerFirst){
+                                //drawCross(squareX+261/2, squareY+261/2);
                             }
+                            else{
+                                //drawCircle(squareX+261/2, squareY+261/2);
+                                game[j][i].isCircle = true;
+                            }
+                            validMove = true;
+                            ++usedSpaces;
                         }
                     }
                 }
             }
         }
 
-        if(validMove){
-            //AI
-            if(usedSpaces < 9){
-                validMove = false;
-                while(!validMove){
-                    var x = Math.floor((Math.random() * 3));
-                    var y = Math.floor((Math.random() * 3));
-                    if(!game[x][y].isUsed){
-                        //alert("I chose X: " + x + " and Y: " + y);
-                        game[x][y].isUsed = true;
-                        game[x][y].isCircle = true;
-                        drawCircle((270*x)+x+125,(270*y)+y+125);
-                        validMove = true;
-                        usedSpaces++;
-                        if(checkForWinner()){
-                            return;
-                        }
-                    }
+        drawPieces();
+        var winner = checkForWinner();
+
+        if(validMove && !winner){
+            CPUTurn();
+            drawPieces();
+            checkForWinner();
+        }
+
+        if(winner){
+            for(var i=0; i<3; i++){
+                for(var j=0; j<3; j++){
+                    game[i][j].isUsed = false;
+                    game[i][j].isCircle = false;
                 }
             }
-            else{
-                alert("Game is a draw.");
-            }
-
         }
 
         //Debug code for drawing click regions
@@ -163,6 +169,28 @@ function mouseDown(event) {
          canvas2D.fillRect((270 * i)+i-1,(270 * j)+j-1, 261, 261);
          }
          }*/
+    }
+}
+
+function CPUTurn(){
+    if(usedSpaces < 9){
+        var validMove = false;
+        while(!validMove){
+            var x = Math.floor((Math.random() * 3));
+            var y = Math.floor((Math.random() * 3));
+            if(!game[x][y].isUsed){
+                game[x][y].isUsed = true;
+                if(playerFirst){
+                    //drawCircle((270*x)+x+125,(270*y)+y+125);
+                    game[x][y].isCircle = true;
+                }
+                else{
+                    //drawCross((270*x)+x+125,(270*y)+y+125);
+                }
+                validMove = true;
+                ++usedSpaces;
+            }
+        }
     }
 }
 
@@ -244,17 +272,68 @@ function checkForWinner(){
             isPossibleWinner = true;
         }
     }
+
+    //Check for draw
+    if(usedSpaces == 9){
+        alert("game is a draw");
+        return true;
+    }
+
+    return false;
 }
 
 function declareWinner(isCircle){
-    if(isCircle){
-        alert("CPU Wins!");
+    if(playerFirst){
+        if(isCircle){
+            alert("CPU Wins!");
+        }
+        else{
+            alert("Player Wins!");
+        }
     }
     else{
-        alert("Player Wins!");
+        if(isCircle){
+            alert("Player Wins!");
+        }
+        else{
+            alert("CPU Wins!");
+        }
     }
 
     gameActive = false;
+}
+
+function drawPieces(){
+    for(var x=0; x<3; x++){
+        for(var y=0; y<3; y++){
+            if(game[x][y].isUsed){
+                if(game[x][y].isCircle){
+                    drawCircle((270*x)+x+125,(270*y)+y+125);
+                }
+                else{
+                    drawCross((270*x)+x+125,(270*y)+y+125);
+                }
+            }
+        }
+    }
+}
+
+function drawPiecesButton(){
+    for(var x=0; x<3; x++){
+        for(var y=0; y<3; y++){
+            if(game[x][y].isUsed){
+                alert("x " + x + " y " + y + " is used");
+                if(game[x][y].isCircle){
+                    drawCircle((270*x)+x+125,(270*y)+y+125);
+                }
+                else{
+                    drawCross((270*x)+x+125,(270*y)+y+125);
+                }
+            }
+        }
+    }
+
+    initBoard();
 }
 
 function drawCircle(x, y){
@@ -264,15 +343,15 @@ function drawCircle(x, y){
     canvas2D.stroke();
 }
 
-function drawCross(x, y){
+function drawCross(x, y) {
     //Top left to bottom right
-    canvas2D.moveTo(x-70, y-70);
-    canvas2D.lineTo(x+70, y+70);
+    canvas2D.moveTo(x - 70, y - 70);
+    canvas2D.lineTo(x + 70, y + 70);
     canvas2D.stroke();
 
     //Bottom left to top right
-    canvas2D.moveTo(x-70, y+70);
-    canvas2D.lineTo(x+70, y-70);
+    canvas2D.moveTo(x - 70, y + 70);
+    canvas2D.lineTo(x + 70, y - 70);
     canvas2D.stroke();
 }
 
