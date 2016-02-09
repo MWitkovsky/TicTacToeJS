@@ -25,17 +25,22 @@ function init() {
 
     canvas2D.fillStyle = "#FF0000";
 
-    /*boardRefresher = setInterval(function(){
+    boardRefresher = setInterval(function(){
         clearCanvas();
         initBoard();
         drawPieces();
-    }, 30/1000)*/
-    playerFirst = true;
+    }, 30/1000);
+    playerFirst = false;
+
     clearCanvas();
     initBoard();
     initGame();
 
     gameStarted = true;
+
+    if(!playerFirst){
+        CPUTurn();
+    }
 }
 
 function initBoard(){
@@ -152,15 +157,6 @@ function mouseDown(event) {
             CPUTurn();
             drawPieces();
             checkForWinner();
-        }
-
-        if(winner){
-            for(var i=0; i<3; i++){
-                for(var j=0; j<3; j++){
-                    game[i][j].isUsed = false;
-                    game[i][j].isCircle = false;
-                }
-            }
         }
 
         //Debug code for drawing click regions

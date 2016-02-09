@@ -28,14 +28,19 @@ function init() {
     boardRefresher = setInterval(function(){
         clearCanvas();
         initBoard();
-        //drawPieces();
+        drawPieces();
     }, 30/1000);
-    playerFirst = true;
+    playerFirst = false;
+
     clearCanvas();
     initBoard();
     initGame();
 
     gameStarted = true;
+
+    if(!playerFirst){
+        CPUTurn();
+    }
 }
 
 function initBoard(){
@@ -152,15 +157,6 @@ function mouseDown(event) {
             CPUTurn();
             drawPieces();
             checkForWinner();
-        }
-
-        if(winner){
-            for(var i=0; i<3; i++){
-                for(var j=0; j<3; j++){
-                    game[i][j].isUsed = false;
-                    game[i][j].isCircle = false;
-                }
-            }
         }
 
         //Debug code for drawing click regions
