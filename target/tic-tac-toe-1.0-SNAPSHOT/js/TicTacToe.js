@@ -9,7 +9,6 @@ var canvas;
 var canvas2D;
 
 //Game variables
-var boardRefresher;
 var playerFirst;
 var game;
 var usedSpaces;
@@ -54,18 +53,17 @@ function initBoard(){
     //Vertical Lines
     canvas2D.moveTo(thirdWidth, 0);
     canvas2D.lineTo(thirdWidth, canvasHeight);
-    canvas2D.stroke();
     canvas2D.moveTo(2*thirdWidth, 0);
     canvas2D.lineTo(2*thirdWidth, canvasHeight);
-    canvas2D.stroke();
 
     //Horizontal Lines
     canvas2D.moveTo(0, thirdHeight);
     canvas2D.lineTo(canvasWidth, thirdHeight);
-    canvas2D.stroke();
     canvas2D.moveTo(0, 2*thirdHeight);
     canvas2D.lineTo(canvasWidth, 2*thirdHeight);
+
     canvas2D.stroke();
+    canvas2D.closePath();
 }
 
 function initGame(){
@@ -86,6 +84,11 @@ function initGame(){
 }
 
 function nextGame(){
+    if(gameActive){
+        alert("finish your current game first!");
+        return;
+    }
+
     for(var i=0; i<3; i++){
         for(var j=0; j<3; j++){
             game[i][j].isUsed = false;
@@ -137,11 +140,7 @@ function mouseDown(event) {
                         }
                         else{
                             game[j][i].isUsed = true;
-                            if(playerFirst){
-                                //drawCross(squareX+261/2, squareY+261/2);
-                            }
-                            else{
-                                //drawCircle(squareX+261/2, squareY+261/2);
+                            if(!playerFirst){
                                 game[j][i].isCircle = true;
                             }
                             validMove = true;
@@ -179,11 +178,7 @@ function CPUTurn(){
             if(!game[x][y].isUsed){
                 game[x][y].isUsed = true;
                 if(playerFirst){
-                    //drawCircle((270*x)+x+125,(270*y)+y+125);
                     game[x][y].isCircle = true;
-                }
-                else{
-                    //drawCross((270*x)+x+125,(270*y)+y+125);
                 }
                 validMove = true;
                 ++usedSpaces;
@@ -316,51 +311,27 @@ function drawPieces(){
     }
 }
 
-function drawPiecesButton(){
-    for(var x=0; x<3; x++){
-        for(var y=0; y<3; y++){
-            if(game[x][y].isUsed){
-                alert("x " + x + " y " + y + " is used");
-                if(game[x][y].isCircle){
-                    drawCircle((270*x)+x+125,(270*y)+y+125);
-                }
-                else{
-                    drawCross((270*x)+x+125,(270*y)+y+125);
-                }
-            }
-        }
-    }
-
-    initBoard();
-}
-
 function drawCircle(x, y){
     canvas2D.moveTo(x, y);
     canvas2D.beginPath();
     canvas2D.arc(x,y,60,0,2*Math.PI);
     canvas2D.stroke();
+    canvas2D.closePath();
 }
 
 function drawCross(x, y) {
+    canvas2D.beginPath();
+
     //Top left to bottom right
     canvas2D.moveTo(x - 70, y - 70);
     canvas2D.lineTo(x + 70, y + 70);
-    canvas2D.stroke();
 
     //Bottom left to top right
     canvas2D.moveTo(x - 70, y + 70);
     canvas2D.lineTo(x + 70, y - 70);
-    canvas2D.stroke();
-}
 
-function resetGame(){
-    for(var i=0; i<3; i++){
-        for(var j=0; j<3; j++){
-            game[i][j].isUsed = false;
-            game[i][j].isCircle = false;
-        }
-    }
-    usedSpaces = 0;
+    canvas2D.stroke();
+    canvas2D.closePath();
 }
 
 function drawNumber(num){
