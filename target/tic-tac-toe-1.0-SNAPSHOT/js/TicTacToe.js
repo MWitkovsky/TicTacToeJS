@@ -9,13 +9,14 @@ var canvas;
 var canvas2D;
 
 //Game variables
+var newGameTimerLength;
 var newGameTimer;
-var counter;
 var playerFirst;
 var game;
 var usedSpaces;
 var gameStarted;
 var gameActive;
+var gameResult;
 
 function init() {
     canvasWidth = 800;
@@ -106,21 +107,21 @@ function nextGame(){
 }
 
 function beginCountdown(){
-    newGameTimer = 5;
-    counter = setInterval(function(){
+    newGameTimerLength = 5;
+    newGameTimer = setInterval(function(){
         clearCanvas();
         initBoard();
-        if(newGameTimer <= 0){
+        if(newGameTimerLength <= 0){
             gameActive = true;
             if(!playerFirst){
                 CPUTurn();
                 drawPieces();
             }
-            clearInterval(counter);
+            clearInterval(newGameTimer);
         }
         else{
-            drawNumber(newGameTimer);
-            --newGameTimer;
+            drawNumber(newGameTimerLength);
+            --newGameTimerLength;
         }
     }, 1000);
 }
@@ -283,6 +284,8 @@ function checkForWinner(){
     //Check for draw
     if(usedSpaces == 9){
         alert("game is a draw");
+        gameResult = "draw";
+        gameActive = false;
         return true;
     }
 
@@ -293,17 +296,21 @@ function declareWinner(isCircle){
     if(playerFirst){
         if(isCircle){
             alert("CPU Wins!");
+            gameResult = "lose";
         }
         else{
             alert("Player Wins!");
+            gameResult = "win";
         }
     }
     else{
         if(isCircle){
             alert("Player Wins!");
+            gameResult = "win";
         }
         else{
             alert("CPU Wins!");
+            gameResult = "lose";
         }
     }
 

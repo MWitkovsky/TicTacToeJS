@@ -1,13 +1,14 @@
 package com.tictactoe;
 
-import java.io.IOException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
-public class LoginServlet extends HttpServlet {
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+public class LogoutServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
@@ -17,9 +18,9 @@ public class LoginServlet extends HttpServlet {
 
         resp.setContentType("text/html");
         if (req.getUserPrincipal() != null) {
-            resp.sendRedirect("./");
+            resp.sendRedirect(userService.createLogoutURL(thisURL));
         } else {
-            resp.sendRedirect(userService.createLoginURL(thisURL));
+            resp.sendRedirect("./");
         }
     }
 }
