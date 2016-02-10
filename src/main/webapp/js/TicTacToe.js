@@ -9,11 +9,14 @@ var canvas;
 var canvas2D;
 
 //Game variables
+var newGameTimerLength;
+var newGameTimer;
 var playerFirst;
 var game;
 var usedSpaces;
 var gameStarted;
 var gameActive;
+var gameResult;
 
 function init() {
     canvasWidth = 800;
@@ -35,11 +38,6 @@ function init() {
     initGame();
 
     gameStarted = true;
-
-    if(!playerFirst){
-        CPUTurn();
-        drawPieces();
-    }
 }
 
 function initBoard(){
@@ -80,7 +78,8 @@ function initGame(){
         }
     }
 
-    gameActive = true;
+    gameActive = false;
+    beginCountdown();
 }
 
 function nextGame(){
@@ -100,15 +99,31 @@ function nextGame(){
     playerFirst = !playerFirst;
 
     gameStarted = true;
-    gameActive = true;
-
-    if(!playerFirst){
-        CPUTurn();
-    }
+    gameActive = false;
 
     clearCanvas();
     initBoard();
-    drawPieces();
+    beginCountdown();
+}
+
+function beginCountdown(){
+    newGameTimerLength = 5;
+    newGameTimer = setInterval(function(){
+        clearCanvas();
+        initBoard();
+        if(newGameTimerLength <= 0){
+            gameActive = true;
+            if(!playerFirst){
+                CPUTurn();
+                drawPieces();
+            }
+            clearInterval(newGameTimer);
+        }
+        else{
+            drawNumber(newGameTimerLength);
+            --newGameTimerLength;
+        }
+    }, 1000);
 }
 
 function clearCanvas() {
@@ -269,6 +284,8 @@ function checkForWinner(){
     //Check for draw
     if(usedSpaces == 9){
         alert("game is a draw");
+        gameResult = "draw";
+        gameActive = false;
         return true;
     }
 
@@ -279,17 +296,21 @@ function declareWinner(isCircle){
     if(playerFirst){
         if(isCircle){
             alert("CPU Wins!");
+            gameResult = "lose";
         }
         else{
             alert("Player Wins!");
+            gameResult = "win";
         }
     }
     else{
         if(isCircle){
             alert("Player Wins!");
+            gameResult = "win";
         }
         else{
             alert("CPU Wins!");
+            gameResult = "lose";
         }
     }
 

@@ -9,6 +9,8 @@ var canvas;
 var canvas2D;
 
 //Game variables
+var newGameTimer;
+var counter;
 var playerFirst;
 var game;
 var usedSpaces;
@@ -35,11 +37,6 @@ function init() {
     initGame();
 
     gameStarted = true;
-
-    if(!playerFirst){
-        CPUTurn();
-        drawPieces();
-    }
 }
 
 function initBoard(){
@@ -80,7 +77,8 @@ function initGame(){
         }
     }
 
-    gameActive = true;
+    gameActive = false;
+    beginCountdown();
 }
 
 function nextGame(){
@@ -100,15 +98,31 @@ function nextGame(){
     playerFirst = !playerFirst;
 
     gameStarted = true;
-    gameActive = true;
-
-    if(!playerFirst){
-        CPUTurn();
-    }
+    gameActive = false;
 
     clearCanvas();
     initBoard();
-    drawPieces();
+    beginCountdown();
+}
+
+function beginCountdown(){
+    newGameTimer = 5;
+    counter = setInterval(function(){
+        clearCanvas();
+        initBoard();
+        if(newGameTimer <= 0){
+            gameActive = true;
+            if(!playerFirst){
+                CPUTurn();
+                drawPieces();
+            }
+            clearInterval(counter);
+        }
+        else{
+            drawNumber(newGameTimer);
+            --newGameTimer;
+        }
+    }, 1000);
 }
 
 function clearCanvas() {
