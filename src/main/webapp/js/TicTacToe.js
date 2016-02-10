@@ -22,14 +22,13 @@ function init() {
     canvas = document.getElementById("myCanvas");
     canvas.addEventListener("mousedown", mouseDown, false);
     canvas2D = canvas.getContext("2d");
-
     canvas2D.fillStyle = "#FF0000";
 
-    boardRefresher = setInterval(function(){
+    /*boardRefresher = setInterval(function(){
         clearCanvas();
         initBoard();
         drawPieces();
-    }, 30/1000);
+    }, 1000/30);*/
     playerFirst = false;
 
     clearCanvas();
@@ -40,6 +39,7 @@ function init() {
 
     if(!playerFirst){
         CPUTurn();
+        drawPieces();
     }
 }
 
@@ -48,6 +48,8 @@ function initBoard(){
     canvas2D.lineWidth = 10;
     var thirdWidth = canvasWidth / 3;
     var thirdHeight = canvasHeight / 3;
+
+    canvas2D.beginPath();
 
     //Vertical Lines
     canvas2D.moveTo(thirdWidth, 0);
@@ -349,6 +351,16 @@ function drawCross(x, y) {
     canvas2D.moveTo(x - 70, y + 70);
     canvas2D.lineTo(x + 70, y - 70);
     canvas2D.stroke();
+}
+
+function resetGame(){
+    for(var i=0; i<3; i++){
+        for(var j=0; j<3; j++){
+            game[i][j].isUsed = false;
+            game[i][j].isCircle = false;
+        }
+    }
+    usedSpaces = 0;
 }
 
 function drawNumber(num){
