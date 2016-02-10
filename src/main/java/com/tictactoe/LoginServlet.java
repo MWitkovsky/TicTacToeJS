@@ -17,7 +17,7 @@ public class LoginServlet extends HttpServlet {
 
         resp.setContentType("text/html");
         if (req.getUserPrincipal() != null) {
-            resp.sendRedirect("./");
+            resp.sendRedirect("./leaderboard");
         } else {
             resp.sendRedirect(userService.createLoginURL(thisURL));
         }

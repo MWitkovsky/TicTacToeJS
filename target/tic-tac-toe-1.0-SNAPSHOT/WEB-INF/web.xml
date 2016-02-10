@@ -5,7 +5,7 @@
   version="2.5">
 
   <welcome-file-list>
-    <welcome-file>welcome.html</welcome-file>
+    <welcome-file>index</welcome-file>
   </welcome-file-list>
   
   <servlet>
@@ -18,12 +18,21 @@
   </servlet-mapping>
 
   <servlet>
-    <servlet-name>logout</servlet-name>
-    <servlet-class>com.tictactoe.LogoutServlet</servlet-class>
+    <servlet-name>index</servlet-name>
+    <servlet-class>com.tictactoe.IndexServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>logout</servlet-name>
-    <url-pattern>/logout</url-pattern>
+    <servlet-name>index</servlet-name>
+    <url-pattern>/index</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>leaderboard</servlet-name>
+    <servlet-class>com.tictactoe.LeaderboardServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>leaderboard</servlet-name>
+    <url-pattern>/leaderboard</url-pattern>
   </servlet-mapping>
 
     <filter>

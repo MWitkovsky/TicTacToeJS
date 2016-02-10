@@ -1,7 +1,3 @@
-/**
- * Created by Michael Witkovsky on 2/4/2016.
- */
-
 //Canvas Variables
 var canvasWidth;
 var canvasHeight;

@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="stylesheets/main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="js/Index.js"></script>
 
     <title>Tic Tac Toe</title>
 </head>
@@ -19,23 +20,17 @@
         <div class="jumbotron">
             <div class ="text-center">
                 <h1>SUPER TIC TAC TOE ULTRA DX ALPHA</h1>
+                <p>Please log in to play or see leaderboards!</p>
             </div>
-        </div>
-        <div class="text-center">
-            <a href="tictactoe.html">
-                <input type="button" onclick="location.href='tictactoe.html';" value="Play Tic-Tac-Toe!" />
-            </a>
         </div>
         <div class="text-center">
             <a href="/login">
                 <input type="button" onclick="location.href='/login';" value="Login with Google" />
             </a>
         </div>
-        <div class="text-center">
-            <a href="/logout">
-                <input type="button" onclick="location.href='/logout';" value="Logout of Google" />
-            </a>
-        </div>
     </div>
+    <script>
+        checkLogin();
+    </script>
 </body>
 </html>
