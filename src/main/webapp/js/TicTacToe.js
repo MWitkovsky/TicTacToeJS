@@ -297,12 +297,18 @@ function declareWinner(isCircle){
         else{
             alert("Player Wins!");
             gameResult = "win";
+
+            $.post('tictactoe', function(data) {
+            });
         }
     }
     else{
         if(isCircle){
             alert("Player Wins!");
             gameResult = "win";
+
+            $.post('tictactoe', function(data) {
+            });
         }
         else{
             alert("CPU Wins!");

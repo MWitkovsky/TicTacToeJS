@@ -5,89 +5,117 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
 import java.io.IOException;
-import java.util.Properties;
+import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.SimpleTimeZone;
-import java.util.logging.*;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.http.*;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
-
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.googlecode.objectify.Key;
+import com.googlecode.objectify.ObjectifyService;
+import com.tictactoe.datastore.Leaderboard;
+import com.tictactoe.datastore.LeaderboardEntry;
 
 @SuppressWarnings("serial")
 public class TicTacToeServlet extends HttpServlet {
-  private static final Logger log = Logger.getLogger(TicTacToeServlet.class.getName());
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, ServletException {
+        UserService userService = UserServiceFactory.getUserService();
+        String thisURL = req.getRequestURI();
+        User user = userService.getCurrentUser();
 
-  public void doGet(HttpServletRequest req,
-                    HttpServletResponse resp)
-          throws IOException, ServletException {
-
-    SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSSSS");
-    fmt.setTimeZone(new SimpleTimeZone(0, ""));
-
-    UserService userService = UserServiceFactory.getUserService();
-    User user = userService.getCurrentUser();
-    String loginUrl = userService.createLoginURL("/");
-    String logoutUrl = userService.createLogoutURL("/");
-
-    Entity userPrefs = null;
-    if (user != null) {
-      DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-      MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
-
-      String cacheKey = "UserPrefs:" + user.getUserId();
-      userPrefs = (Entity) memcache.get(cacheKey);
-      if (userPrefs == null) {
-        log.warning("CACHE MISS");
-
-        Key userKey = KeyFactory.createKey("UserPrefs", user.getUserId());
-        try {
-          userPrefs = ds.get(userKey);
-          memcache.put(cacheKey, userPrefs);
-        } catch (EntityNotFoundException e) {
-          // No user preferences stored.
+        PrintWriter out = resp.getWriter();
+        resp.setContentType("text/html");
+        if (req.getUserPrincipal() != null) {
+            //Generate HTML page
+            createHeading(out);
+            createBody(out, user);
+          } else {
+            resp.sendRedirect("./");
         }
-      } else {
-        log.warning("CACHE HIT");
-      }
     }
 
-    if (userPrefs != null) {
-      int tzOffset = ((Long) userPrefs.getProperty("tz_offset")).intValue();
-      fmt.setTimeZone(new SimpleTimeZone(tzOffset * 60 * 60 * 1000, ""));
-      req.setAttribute("tzOffset", tzOffset);
-    } else {
-      req.setAttribute("tzOffset", 0);
+    public void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException{
+        UserService userService = UserServiceFactory.getUserService();
+        User user = userService.getCurrentUser();
+
+        LeaderboardEntry userEntry = null;
+
+        // Create the correct Ancestor key
+        Key<Leaderboard> parentLeaderboard = Key.create(Leaderboard.class, "default");
+
+        // Run an ancestor query to ensure we see the most up-to-date
+        // view of the Greetings belonging to the selected Guestbook.
+        List<LeaderboardEntry> entries = ObjectifyService.ofy()
+                .load()
+                .type(LeaderboardEntry.class) // We want only entries
+                .ancestor(parentLeaderboard)    // Anyone in this leaderboard
+                .list();
+
+        for (LeaderboardEntry entry : entries){
+            if(entry.player_id.equals(user.getUserId())){
+                userEntry = entry;
+                break;
+            }
+        }
+        if (userEntry == null){
+            userEntry = new LeaderboardEntry("default", 1, user.getUserId(), user.getEmail());
+        }
+        else{
+            ObjectifyService.ofy().delete().entity(userEntry).now();
+            userEntry.score++;
+        }
+
+        ObjectifyService.ofy().save().entity(userEntry).now();
+        resp.sendRedirect("./");
     }
 
-    req.setAttribute("user", user);
-    req.setAttribute("loginUrl", loginUrl);
-    req.setAttribute("logoutUrl", logoutUrl);
-    req.setAttribute("currentTime", fmt.format(new Date()));
+    private void createHeading(PrintWriter out){
+        out.println("<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js\"></script>\n" +
+                "    <!-- Latest compiled and minified CSS -->\n" +
+                "    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\"\n" +
+                "          integrity=\"sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7\"\n" +
+                "          crossorigin=\"anonymous\">\n" +
+                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" +
+                "    <link rel=\"stylesheet\" href=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\">\n" +
+                "    <link rel=\"stylesheet\" href=\"stylesheets/main.css\">\n" +
+                "    <script src=\"http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\"></script>\n" +
+                "    <script src=\"./js/TicTacToe.js\"></script>\n" +
+                "\n" +
+                "    <title>Tic Tac Toe</title>\n" +
+                "</head>");
+    }
 
-    resp.setContentType("text/html");
-
-    RequestDispatcher jsp = req.getRequestDispatcher("/WEB-INF/home.jsp");
-    jsp.forward(req, resp);
-  }
+    private void createBody(PrintWriter out, User user){
+        out.println("<body>\n" +
+                "    <div class=\"container\">\n" +
+                "        <div class=\"jumbotron\">\n" +
+                "            <div class =\"text-center\">\n" +
+                "                <h1>SUPER TIC TAC TOE ULTRA DX ALPHA</h1>\n" +
+                "                <p>Player: " + user.getNickname() + "</p>\n" +
+                "            </div>\n" +
+                "        </div>\n" +
+                "        <div class =\"text-center\">\n" +
+                "            <canvas id=\"myCanvas\" width=\"800\" height=\"800\" style=\"border:1px solid #000000;\"></canvas>\n" +
+                "        </div>\n" +
+                "        <div class =\"text-center\">\n" +
+                "            <input type=\"button\" onclick=\"nextGame();\" value=\"Start New Game!\" />\n" +
+                "        </div>\n" +
+                "" + HTMLHandler.createLeaderboardButton() +
+                "        <script>\n" +
+                "            init();\n" +
+                "        </script>\n" +
+                "    </div>\n" +
+                "</body>\n" +
+                "</html>");
+    }
 }
+

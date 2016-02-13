@@ -35,6 +35,15 @@
     <url-pattern>/leaderboard</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>tictactoe</servlet-name>
+    <servlet-class>com.tictactoe.TicTacToeServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>tictactoe</servlet-name>
+    <url-pattern>/tictactoe</url-pattern>
+  </servlet-mapping>
+
     <filter>
       <filter-name>ObjectifyFilter</filter-name>
       <filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>

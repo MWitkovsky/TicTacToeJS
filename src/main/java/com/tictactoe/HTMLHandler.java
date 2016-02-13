@@ -40,4 +40,12 @@ public class HTMLHandler {
                 "</div>\n";
         return button;
     }
+
+    public static String createLeaderboardButton(){
+        return "<div class=\"text-center\">\n" +
+                "            <a href=\"/leaderboard\">\n" +
+                "                <input type=\"button\" onclick=\"location.href='/leaderboard';\" value=\"Back to Leaderboard\" />\n" +
+                "            </a>\n" +
+                "        </div>\n";
+    }
 }
